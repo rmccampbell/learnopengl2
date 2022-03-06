@@ -5,11 +5,9 @@
 #include <filesystem>
 
 #include <glad/glad.h>
+#include <stb_image.h>
 
 #include "errutil.h"
-
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
 
 inline GLuint load_texture(std::filesystem::path path, bool flip = true) {
     int width, height, channels;
