@@ -18,6 +18,7 @@
 
 #include "common/errutil.h"
 #include "common/shader.h"
+#include "common/texture.h"
 #include "common/util.h"
 
 namespace fs = std::filesystem;
@@ -34,7 +35,9 @@ const char VS_SOURCE[] = R"(
 
     in vec3 position;
     in vec3 color;
+    in vec2 tex_coords;
     out vec3 v_color;
+    out vec2 v_tex_coords;
 
     uniform mat4 modelview;
     uniform mat4 projection;
@@ -42,6 +45,7 @@ const char VS_SOURCE[] = R"(
     void main() {
         gl_Position = projection * (modelview * vec4(position, 1.));
         v_color = color;
+        v_tex_coords = tex_coords;
     }
 )";
 
@@ -49,10 +53,13 @@ const char FS_SOURCE[] = R"(
     #version 330
 
     in vec3 v_color;
-    out vec4 color;
+    in vec2 v_tex_coords;
+    out vec4 frag_color;
+
+    uniform sampler2D texture;
 
     void main() {
-        color = vec4(v_color, 1.);
+        frag_color = vec4(v_color, 1) * texture(texture, v_tex_coords);
     }
 )";
 
@@ -66,7 +73,14 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
         glViewport(0, 0, width, height);
 }
 
-int main(int argc, char** argv) {
+#ifdef _WIN32
+// Support unicode paths on Windows
+int wmain(int argc, wchar_t* argv[]) {
+#else
+int main(int argc, char* argv[]) {
+#endif
+    fs::path exe_path = argv[0];
+    fs::path resource_dir = exe_path.parent_path() / "resources";
     try {
         err::check(glfwInit(), "failed to init GLFW");
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -83,13 +97,15 @@ int main(int argc, char** argv) {
         glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
         GLuint shader = build_shader(VS_SOURCE, FS_SOURCE);
+        GLuint texture = load_texture(resource_dir / "textures/checkerboard.png");
 
-        float vertices[][6] = {
-            {-0.6f, -0.5f, 0.f, 1.f, 0.f, 0.f},
-            { 0.6f, -0.5f, 0.f, 0.f, 1.f, 0.f},
-            { 0.0f,  0.5f, 0.f, 0.f, 0.f, 1.f},
+        float vertices[][8] = {
+            {-0.5f, -0.5f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f},
+            { 0.5f, -0.5f, 0.f, 1.f, 1.f, 0.f, 1.f, 0.f},
+            { 0.5f,  0.5f, 0.f, 0.f, 1.f, 0.f, 1.f, 1.f},
+            {-0.5f,  0.5f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f},
         };
-        unsigned int indices[] = {0, 1, 2};
+        unsigned int indices[] = {0, 1, 2, 2, 3, 0};
 
         GLuint vao, vbo, ebo;
         glGenVertexArrays(1, &vao);
@@ -106,16 +122,19 @@ int main(int argc, char** argv) {
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]),
-                              reinterpret_cast<void*>(0));
+                              reinterpret_cast<void*>(0 * sizeof(float)));
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]),
                               reinterpret_cast<void*>(3 * sizeof(float)));
-
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(vertices[0]),
+                              reinterpret_cast<void*>(6 * sizeof(float)));
         glBindVertexArray(0);
 
         glUseProgram(shader);
         glBindAttribLocation(shader, 0, "position");
         glBindAttribLocation(shader, 1, "color");
+        glBindAttribLocation(shader, 2, "tex_coords");
 
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.8f, 0.8f, .8f, 1.0f);
@@ -130,10 +149,14 @@ int main(int argc, char** argv) {
 
             glm::mat4 modelview{1};
             modelview = glm::translate(modelview, glm::vec3(0, 0, -2));
-            float angle = float(glfwGetTime()) * glm::pi<float>() / 2.f;
+            float angle = float(glfwGetTime()) * glm::pi<float>() / 4.f;
             modelview = glm::rotate(modelview, angle, glm::vec3(0, 1, 0));
             glUniformMatrix4fv(glGetUniformLocation(shader, "modelview"), 1,
                                GL_FALSE, glm::value_ptr(modelview));
+
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, texture);
+            glUniform1i(glGetUniformLocation(shader, "texture"), 0);
 
             glBindVertexArray(vao);
             glDrawElements(GL_TRIANGLES, GLsizei(std::size(indices)), GL_UNSIGNED_INT, 0);

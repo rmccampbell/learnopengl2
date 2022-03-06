@@ -17,12 +17,13 @@ inline GLuint load_texture(std::filesystem::path path, bool flip = true) {
     err::check(data, "failed to load texture {}: {}", path.string(),
                stbi_failure_reason());
 
+    GLenum format = std::array{0, GL_RED, GL_RG, GL_RGB, GL_RGBA}[channels];
+    GLenum iformat = std::array{0, GL_R8, GL_RG8, GL_RGB8, GL_RGBA8}[channels];
+
     GLuint id;
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    GLenum format = std::array{0, GL_RED, GL_RG, GL_RGB, GL_RGBA}[channels];
-    GLenum iformat = std::array{0, GL_R8, GL_RG8, GL_RGB8, GL_RGBA8}[channels];
     glTexImage2D(GL_TEXTURE_2D, 0, iformat, width, height, 0, format,
                  GL_UNSIGNED_BYTE, data);
     stbi_image_free(data);
@@ -33,6 +34,7 @@ inline GLuint load_texture(std::filesystem::path path, bool flip = true) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
                     GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
     // set swizzle mask for grayscale
     if (channels == 1) {
         GLint swizzle_mask[] = {GL_RED, GL_RED, GL_RED, GL_ONE};
