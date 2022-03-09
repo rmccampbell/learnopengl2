@@ -30,39 +30,6 @@ const float ZNEAR = 0.01f;
 const float ZFAR = 100.f;
 const float FOV = glm::radians(45.f);
 
-const char VS_SOURCE[] = R"(
-    #version 330
-
-    in vec3 position;
-    in vec3 color;
-    in vec2 tex_coords;
-    out vec3 v_color;
-    out vec2 v_tex_coords;
-
-    uniform mat4 modelview;
-    uniform mat4 projection;
-
-    void main() {
-        gl_Position = projection * (modelview * vec4(position, 1.));
-        v_color = color;
-        v_tex_coords = tex_coords;
-    }
-)";
-
-const char FS_SOURCE[] = R"(
-    #version 330
-
-    in vec3 v_color;
-    in vec2 v_tex_coords;
-    out vec4 frag_color;
-
-    uniform sampler2D texture;
-
-    void main() {
-        frag_color = vec4(v_color, 1) * texture(texture, v_tex_coords);
-    }
-)";
-
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
@@ -79,7 +46,7 @@ int wmain(int argc, wchar_t* argv[]) {
 #else
 int main(int argc, char* argv[]) {
 #endif
-    fs::path exe_path = argv[0];
+    fs::path exe_path = argc ? argv[0] : fs::path();
     fs::path resource_dir = exe_path.parent_path() / "resources";
     try {
         err::check(glfwInit(), "failed to init GLFW");
@@ -96,7 +63,8 @@ int main(int argc, char* argv[]) {
         glfwSetKeyCallback(window, key_callback);
         glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-        GLuint shader = build_shader(VS_SOURCE, FS_SOURCE);
+        GLuint shader = load_shader(resource_dir / "shaders/shader.vs",
+                                    resource_dir / "shaders/shader.fs");
         GLuint texture = load_texture(resource_dir / "textures/checkerboard.png");
 
         float vertices[][8] = {

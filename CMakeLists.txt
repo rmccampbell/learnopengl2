@@ -14,15 +14,16 @@ find_path(STB_IMAGE_INCLUDE_DIR "stb_image.h")
 
 set(RESOURCES_DIR "${CMAKE_SOURCE_DIR}/resources")
 
-function(copy_resources_dir target)
+function(copy_resources_to_output target dir)
     add_custom_command(
         TARGET ${target} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E create_symlink
-                "${RESOURCES_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+                "${dir}"
                 "$<TARGET_FILE_DIR:${target}>/resources"
     )
-endfunction(copy_resources_dir)
+endfunction(copy_resources_to_output)
 
 add_subdirectory(common)
 add_subdirectory(simple_demo)
 add_subdirectory(texture_demo)
+add_subdirectory(texture_demo2)

@@ -34,7 +34,7 @@ inline GLuint load_texture(std::filesystem::path path, bool flip = true) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
                     GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, 4.0f);
     // set swizzle mask for grayscale
     if (channels == 1) {
         GLint swizzle_mask[] = {GL_RED, GL_RED, GL_RED, GL_ONE};
