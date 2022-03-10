@@ -16,10 +16,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "common/errutil.h"
+#include "common/errutils.h"
 #include "common/shader.h"
 #include "common/texture.h"
-#include "common/util.h"
+#include "common/utils.h"
 
 namespace fs = std::filesystem;
 
@@ -73,8 +73,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
         glViewport(0, 0, width, height);
 }
 
-#ifdef _MSC_VER
-// Support unicode paths on Windows
+#ifdef _WIN32
+// Support unicode args on Windows
 int wmain(int argc, wchar_t* argv[]) {
 #else
 int main(int argc, char* argv[]) {

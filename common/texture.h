@@ -7,13 +7,14 @@
 #include <glad/glad.h>
 #include <stb_image.h>
 
-#include "errutil.h"
+#include "errutils.h"
+#include "u8tils.h"
 
 inline GLuint load_texture(std::filesystem::path path, bool flip = true) {
     int width, height, channels;
     stbi_set_flip_vertically_on_load(flip);
     unsigned char* data =
-        stbi_load(path.u8string().c_str(), &width, &height, &channels, 0);
+        stbi_load(u8::path_to_char(path), &width, &height, &channels, 0);
     err::check(data, "failed to load texture {}: {}", path.string(),
                stbi_failure_reason());
 

@@ -10,13 +10,13 @@ namespace err {
 
 template <typename... Args>
 void error(fmt::format_string<Args...> s, Args&&... args) {
-    throw std::runtime_error(fmt::format(s, args...));
+    throw std::runtime_error(fmt::format(s, std::forward<Args>(args)...));
 }
 
 template <typename T, typename... Args>
 decltype(auto) check(T&& val, fmt::format_string<Args...> s, Args&&... args) {
     if (!val)
-        error(s, args...);
+        error(s, std::forward<Args>(args)...);
     return std::forward<T>(val);
 }
 

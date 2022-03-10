@@ -9,7 +9,7 @@
 
 #include <glad/glad.h>
 
-#include "errutil.h"
+#include "errutils.h"
 
 inline void check_compile_errors(GLuint shader, const std::string& type) {
     int success, len;
