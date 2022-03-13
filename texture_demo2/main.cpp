@@ -46,17 +46,18 @@ int wmain(int argc, wchar_t* argv[]) {
 #else
 int main(int argc, char* argv[]) {
 #endif
-    fs::path exe_path = argc ? argv[0] : fs::path();
-    fs::path resource_dir = exe_path.parent_path() / "resources";
     try {
-        err::check(glfwInit(), "failed to init GLFW");
+        fs::path exe_path = fs::weakly_canonical(argc ? argv[0] : fs::path());
+        fs::path resource_dir = exe_path.parent_path() / "resources";
+
+        err::check_glfw(glfwInit(), "failed to init GLFW: {}");
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
         GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT,
                                               "LearnOpenGL", nullptr, nullptr);
-        err::check(window, "failed to create GLFW window");
+        err::check_glfw(window, "failed to create GLFW window: {}");
         glfwMakeContextCurrent(window);
         err::check(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress),
                    "failed to load GL loader");
@@ -124,7 +125,7 @@ int main(int argc, char* argv[]) {
 
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, texture);
-            glUniform1i(glGetUniformLocation(shader, "texture"), 0);
+            glUniform1i(glGetUniformLocation(shader, "tex"), 0);
 
             glBindVertexArray(vao);
             glDrawElements(GL_TRIANGLES, GLsizei(std::size(indices)), GL_UNSIGNED_INT, 0);

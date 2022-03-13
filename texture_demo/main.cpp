@@ -56,10 +56,10 @@ const char FS_SOURCE[] = R"(
     in vec2 v_tex_coords;
     out vec4 frag_color;
 
-    uniform sampler2D texture;
+    uniform sampler2D tex;
 
     void main() {
-        frag_color = vec4(v_color, 1) * texture(texture, v_tex_coords);
+        frag_color = vec4(v_color, 1) * texture(tex, v_tex_coords);
     }
 )";
 
@@ -82,14 +82,14 @@ int main(int argc, char* argv[]) {
     fs::path exe_path = argv[0];
     fs::path resource_dir = exe_path.parent_path() / "resources";
     try {
-        err::check(glfwInit(), "failed to init GLFW");
+        err::check_glfw(glfwInit(), "failed to init GLFW: {}");
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
         GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT,
                                               "LearnOpenGL", nullptr, nullptr);
-        err::check(window, "failed to create GLFW window");
+        err::check_glfw(window, "failed to create GLFW window: {}");
         glfwMakeContextCurrent(window);
         err::check(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress),
                    "failed to load GL loader");
@@ -156,7 +156,7 @@ int main(int argc, char* argv[]) {
 
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, texture);
-            glUniform1i(glGetUniformLocation(shader, "texture"), 0);
+            glUniform1i(glGetUniformLocation(shader, "tex"), 0);
 
             glBindVertexArray(vao);
             glDrawElements(GL_TRIANGLES, GLsizei(std::size(indices)), GL_UNSIGNED_INT, 0);
