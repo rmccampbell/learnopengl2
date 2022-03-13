@@ -30,5 +30,4 @@ endfunction(copy_resources_to_output)
 
 add_subdirectory(common)
 add_subdirectory(simple_demo)
-add_subdirectory(texture_demo)
 add_subdirectory(texture_demo2)
