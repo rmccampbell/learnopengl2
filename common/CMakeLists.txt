@@ -1,4 +1,4 @@
-add_library(common stb_image.cpp shader.h texture.h mesh.h errutils.h utils.h u8tils.h)
-target_include_directories(common PUBLIC ..)
+add_library(common shader.cpp shader.h texture.cpp texture.h mesh.h errutils.h utils.h u8tils.h)
+target_include_directories(common PUBLIC "${CMAKE_SOURCE_DIR}")
 target_link_libraries(common PUBLIC fmt::fmt glad::glad glfw glm::glm)
-target_include_directories(common PUBLIC ${STB_IMAGE_INCLUDE_DIR})
+target_link_libraries(common PRIVATE stb_image)

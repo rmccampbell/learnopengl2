@@ -28,6 +28,7 @@ function(copy_resources_to_output target dir)
     )
 endfunction(copy_resources_to_output)
 
+add_subdirectory(third_party)
 add_subdirectory(common)
 add_subdirectory(simple_demo)
 add_subdirectory(texture_demo)

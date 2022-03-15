@@ -78,21 +78,23 @@ int main(int argc, char* argv[]) {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT,
-                                              "LearnOpenGL", nullptr, nullptr);
+        GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "LearnOpenGL",
+                                              nullptr, nullptr);
         err::check_glfw(window, "failed to create GLFW window: {}");
         glfwMakeContextCurrent(window);
-        err::check(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress),
-                   "failed to load GL loader");
+        err::check_glfw(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress),
+                        "failed to load GL loader: {}");
         glfwSetKeyCallback(window, key_callback);
         glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
         GLuint shader = build_shader(VS_SOURCE, FS_SOURCE);
 
         float vertices[][6] = {
+            // clang-format off
             {-0.6f, -0.5f, 0.f, 1.f, 0.f, 0.f},
             { 0.6f, -0.5f, 0.f, 0.f, 1.f, 0.f},
             { 0.0f,  0.5f, 0.f, 0.f, 0.f, 1.f},
+            // clang-format on
         };
         unsigned int indices[] = {0, 1, 2};
 
@@ -103,11 +105,9 @@ int main(int argc, char* argv[]) {
 
         glBindVertexArray(vao);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
-                     GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
-                     GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]),
@@ -130,15 +130,15 @@ int main(int argc, char* argv[]) {
             float aspect = width / height;
             glm::mat4 projection = glm::perspective(FOV, aspect, ZNEAR, ZFAR);
             // glm::mat4 projection = glm::ortho(-aspect, aspect, -1.f, 1.f, ZNEAR, ZFAR);
-            glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1,
-                               GL_FALSE, glm::value_ptr(projection));
+            glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, GL_FALSE,
+                               glm::value_ptr(projection));
 
             glm::mat4 modelview{1};
             modelview = glm::translate(modelview, glm::vec3(0, 0, -2));
             float angle = float(glfwGetTime()) * glm::pi<float>() / 2.f;
             modelview = glm::rotate(modelview, angle, glm::vec3(0, 1, 0));
-            glUniformMatrix4fv(glGetUniformLocation(shader, "modelview"), 1,
-                               GL_FALSE, glm::value_ptr(modelview));
+            glUniformMatrix4fv(glGetUniformLocation(shader, "modelview"), 1, GL_FALSE,
+                               glm::value_ptr(modelview));
 
             glBindVertexArray(vao);
             glDrawElements(GL_TRIANGLES, GLsizei(std::size(indices)), GL_UNSIGNED_INT, 0);

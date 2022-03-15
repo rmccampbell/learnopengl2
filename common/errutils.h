@@ -1,6 +1,8 @@
-#ifndef ERRUTIL_H
-#define ERRUTIL_H
+#ifndef ERRUTILS_H
+#define ERRUTILS_H
 
+#include <cerrno>
+#include <cstring>
 #include <stdexcept>
 #include <utility>
 
@@ -10,7 +12,7 @@
 namespace err {
 
 template <typename... Args>
-[[ noreturn ]] void error(fmt::format_string<Args...> fmt, Args&&... args) {
+[[noreturn]] void error(fmt::format_string<Args...> fmt, Args&&... args) {
     throw std::runtime_error(fmt::format(fmt, std::forward<Args>(args)...));
 }
 
@@ -22,8 +24,16 @@ decltype(auto) check(T&& val, fmt::format_string<Args...> fmt, Args&&... args) {
 }
 
 template <typename T, typename... Args>
-decltype(auto) check_glfw(T&& val, fmt::format_string<Args...> fmt,
-                          Args&&... args) {
+decltype(auto) check_errno(T&& val, fmt::format_string<Args...> fmt, Args&&... args) {
+    if (!val) {
+#pragma warning(suppress : 4996) // strerror is *technically* not thread-safe
+        error(fmt, std::forward<Args>(args)..., strerror(errno));
+    }
+    return std::forward<T>(val);
+}
+
+template <typename T, typename... Args>
+decltype(auto) check_glfw(T&& val, fmt::format_string<Args...> fmt, Args&&... args) {
     if (!val) {
         const char* msg;
         glfwGetError(&msg);
@@ -34,4 +44,4 @@ decltype(auto) check_glfw(T&& val, fmt::format_string<Args...> fmt,
 
 } // namespace err
 
-#endif // ERRUTIL_H
+#endif // ERRUTILS_H

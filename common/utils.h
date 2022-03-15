@@ -1,5 +1,5 @@
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef UTILS_H
+#define UTILS_H
 
 #include <array>
 #include <glad/glad.h>
@@ -33,4 +33,4 @@ auto gl_get(GLenum pname) {
 
 } // namespace util
 
-#endif // UTIL_H
+#endif // UTILS_H
