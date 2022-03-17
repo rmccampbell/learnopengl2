@@ -7,6 +7,7 @@
 #include <stb_image.h>
 
 #include "errutils.h"
+#include "shader.h"
 #include "u8tils.h"
 
 GLuint load_texture(const std::filesystem::path& path, bool flip) {
@@ -43,4 +44,16 @@ GLuint load_texture(const std::filesystem::path& path, bool flip) {
         glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzle_mask);
     }
     return id;
+}
+
+void Texture::bind(unsigned int unit) const {
+    glActiveTexture(GL_TEXTURE0 + unit);
+    glBindTexture(GL_TEXTURE_2D, id_);
+}
+
+std::ostream& operator<<(std::ostream& os, const Texture& texture) {
+    os << "Texture { " << texture.id_.get();
+    if (texture)
+        os << ": " << texture.filename_;
+    return os << " }";
 }
