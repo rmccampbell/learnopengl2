@@ -17,14 +17,14 @@ template <typename... Args>
 }
 
 template <typename T, typename... Args>
-decltype(auto) check(T&& val, fmt::format_string<Args...> fmt, Args&&... args) {
+T&& check(T&& val, fmt::format_string<Args...> fmt, Args&&... args) {
     if (!val)
         error(fmt, std::forward<Args>(args)...);
     return std::forward<T>(val);
 }
 
 template <typename T, typename... Args>
-decltype(auto) check_errno(T&& val, fmt::format_string<Args...> fmt, Args&&... args) {
+T&& check_errno(T&& val, fmt::format_string<Args...> fmt, Args&&... args) {
     if (!val) {
 #pragma warning(suppress : 4996) // strerror is *technically* not thread-safe
         error(fmt, std::forward<Args>(args)..., strerror(errno));
@@ -33,7 +33,7 @@ decltype(auto) check_errno(T&& val, fmt::format_string<Args...> fmt, Args&&... a
 }
 
 template <typename T, typename... Args>
-decltype(auto) check_glfw(T&& val, fmt::format_string<Args...> fmt, Args&&... args) {
+T&& check_glfw(T&& val, fmt::format_string<Args...> fmt, Args&&... args) {
     if (!val) {
         const char* msg;
         glfwGetError(&msg);

@@ -46,9 +46,29 @@ GLuint load_texture(const std::filesystem::path& path, bool flip) {
     return id;
 }
 
+void Texture::bind() const {
+    glBindTexture(GL_TEXTURE_2D, id_);
+}
+
 void Texture::bind(unsigned int unit) const {
     glActiveTexture(GL_TEXTURE0 + unit);
-    glBindTexture(GL_TEXTURE_2D, id_);
+    bind();
+}
+
+void Texture::set_param(GLenum pname, GLint param) {
+    glTextureParameteri(id_, pname, param);
+}
+
+void Texture::set_param(GLenum pname, GLfloat param) {
+    glTextureParameterf(id_, pname, param);
+}
+
+void Texture::set_param(GLenum pname, GLint* param) {
+    glTextureParameteriv(id_, pname, param);
+}
+
+void Texture::set_param(GLenum pname, GLfloat* param) {
+    glTextureParameterfv(id_, pname, param);
 }
 
 std::ostream& operator<<(std::ostream& os, const Texture& texture) {

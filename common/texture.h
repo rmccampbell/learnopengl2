@@ -23,7 +23,15 @@ class Texture {
 
     explicit operator bool() const { return id_ != 0; }
     bool empty() const { return id_ == 0; }
+
+    void bind() const;
     void bind(unsigned int unit) const;
+
+    void set_param(GLenum pname, GLint param);
+    void set_param(GLenum pname, GLfloat param);
+    void set_param(GLenum pname, GLint* param);
+    void set_param(GLenum pname, GLfloat* param);
+
     friend std::ostream& operator<<(std::ostream& os, const Texture& texture);
 
   private:

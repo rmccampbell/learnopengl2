@@ -17,6 +17,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "common/errutils.h"
+#include "common/mesh.h"
 #include "common/shader.h"
 #include "common/texture.h"
 #include "common/utils.h"
@@ -51,8 +52,8 @@ int main(int argc, char* argv[]) {
         fs::path resource_dir = exe_path.parent_path() / "resources";
 
         err::check_glfw(glfwInit(), "failed to init GLFW: {}");
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
         GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "LearnOpenGL",
@@ -68,42 +69,20 @@ int main(int argc, char* argv[]) {
                                      resource_dir / "shaders/shader.fs");
         Texture texture(resource_dir / "textures/checkerboard.png");
 
-        float vertices[][8] = {
-            // clang-format off
-            {-0.5f, -0.5f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f},
-            { 0.5f, -0.5f, 0.f, 1.f, 1.f, 0.f, 1.f, 0.f},
-            { 0.5f,  0.5f, 0.f, 0.f, 1.f, 0.f, 1.f, 1.f},
-            {-0.5f,  0.5f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f},
-            // clang-format on
+        Vertex vertices[] = {
+            {{-0.5f, -0.5f, 0.f}, {1.f, 0.f, 0.f}, {0.f, 0.f}},
+            {{+0.5f, -0.5f, 0.f}, {1.f, 1.f, 0.f}, {1.f, 0.f}},
+            {{+0.5f, +0.5f, 0.f}, {0.f, 1.f, 0.f}, {1.f, 1.f}},
+            {{-0.5f, +0.5f, 0.f}, {0.f, 0.f, 1.f}, {0.f, 1.f}},
         };
         unsigned int indices[] = {0, 1, 2, 2, 3, 0};
 
-        GLuint vao, vbo, ebo;
-        glGenVertexArrays(1, &vao);
-        glGenBuffers(1, &vbo);
-        glGenBuffers(1, &ebo);
-
-        glBindVertexArray(vao);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]),
-                              reinterpret_cast<void*>(0 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]),
-                              reinterpret_cast<void*>(3 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(vertices[0]),
-                              reinterpret_cast<void*>(6 * sizeof(float)));
-        glBindVertexArray(0);
+        Mesh mesh(vertices, indices);
 
         shader.use();
-        shader.bind_attribute_location("position", 0);
-        shader.bind_attribute_location("color", 1);
-        shader.bind_attribute_location("tex_coords", 2);
+        shader.bind_attribute_location("position", Attr::POSITION);
+        shader.bind_attribute_location("color", Attr::NORMAL);
+        shader.bind_attribute_location("tex_coords", Attr::TEX_COORDS);
 
         texture.bind(0);
         shader.set_int("tex", 0);
@@ -124,8 +103,7 @@ int main(int argc, char* argv[]) {
             modelview = glm::rotate(modelview, angle, glm::vec3(0, 1, 0));
             shader.set_mat4("modelview", modelview);
 
-            glBindVertexArray(vao);
-            glDrawElements(GL_TRIANGLES, GLsizei(std::size(indices)), GL_UNSIGNED_INT, 0);
+            mesh.draw();
 
             glfwSwapBuffers(window);
             glfwPollEvents();
