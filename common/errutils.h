@@ -24,7 +24,7 @@ T&& check(T&& val, fmt::format_string<Args...> fmt, Args&&... args) {
 }
 
 template <typename T, typename... Args>
-T&& check_errno(T&& val, fmt::format_string<Args...> fmt, Args&&... args) {
+T&& check_errno(T&& val, fmt::format_string<Args..., char*> fmt, Args&&... args) {
     if (!val) {
 #pragma warning(suppress : 4996) // strerror is *technically* not thread-safe
         error(fmt, std::forward<Args>(args)..., strerror(errno));
@@ -33,7 +33,7 @@ T&& check_errno(T&& val, fmt::format_string<Args...> fmt, Args&&... args) {
 }
 
 template <typename T, typename... Args>
-T&& check_glfw(T&& val, fmt::format_string<Args...> fmt, Args&&... args) {
+T&& check_glfw(T&& val, fmt::format_string<Args..., const char*> fmt, Args&&... args) {
     if (!val) {
         const char* msg;
         glfwGetError(&msg);

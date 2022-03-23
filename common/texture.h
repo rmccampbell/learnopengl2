@@ -7,7 +7,11 @@
 
 #include "handle.h"
 
-using TextureHandle = Handle<GLuint, decltype([](GLuint t) { glDeleteTextures(1, &t); })>;
+struct texture_deleter {
+    void operator()(GLuint t) { glDeleteTextures(1, &t); }
+};
+
+using TextureHandle = Handle<GLuint, texture_deleter>;
 
 GLuint load_texture(const std::filesystem::path& path, bool flip = true);
 

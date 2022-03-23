@@ -8,8 +8,16 @@
 
 #include "handle.h"
 
-using VaoHandle = Handle<GLuint, decltype([](GLuint v) { glDeleteVertexArrays(1, &v); })>;
-using BufferHandle = Handle<GLuint, decltype([](GLuint b) { glDeleteVertexArrays(1, &b); })>;
+struct vao_deleter {
+    void operator()(GLuint v) { glDeleteVertexArrays(1, &v); }
+};
+
+struct buffer_deleter {
+    void operator()(GLuint b) { glDeleteBuffers(1, &b); }
+};
+
+using VaoHandle = Handle<GLuint, vao_deleter>;
+using BufferHandle = Handle<GLuint, buffer_deleter>;
 
 enum Attr {
     POSITION = 0,
