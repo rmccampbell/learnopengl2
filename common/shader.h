@@ -43,10 +43,6 @@ class Shader {
 
     void use() const { glUseProgram(id_); }
 
-    void bind_attribute_location(const char* name, GLuint index) const {
-        glBindAttribLocation(id_, index, name);
-    }
-
     GLint uniform_location(const char* name) const {
         return glGetUniformLocation(id_, name);
     }

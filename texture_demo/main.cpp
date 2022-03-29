@@ -101,9 +101,6 @@ int main(int argc, char* argv[]) {
         glBindVertexArray(0);
 
         glUseProgram(shader);
-        glBindAttribLocation(shader, 0, "position");
-        glBindAttribLocation(shader, 1, "color");
-        glBindAttribLocation(shader, 2, "tex_coords");
 
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.8f, 0.8f, .8f, 1.0f);

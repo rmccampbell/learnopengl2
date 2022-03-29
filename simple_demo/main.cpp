@@ -32,8 +32,8 @@ const float FOV = glm::radians(45.f);
 const char VS_SOURCE[] = R"(
     #version 330
 
-    in vec3 position;
-    in vec3 color;
+    layout (location = 0) in vec3 position;
+    layout (location = 1) in vec3 color;
     out vec3 v_color;
 
     uniform mat4 modelview;
@@ -119,8 +119,6 @@ int main(int argc, char* argv[]) {
         glBindVertexArray(0);
 
         glUseProgram(shader);
-        glBindAttribLocation(shader, 0, "position");
-        glBindAttribLocation(shader, 1, "color");
 
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.8f, 0.8f, .8f, 1.0f);

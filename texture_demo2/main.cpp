@@ -31,6 +31,8 @@ const float ZNEAR = 0.01f;
 const float ZFAR = 100.f;
 const float FOV = glm::radians(45.f);
 
+const glm::vec4 BG_COLOR = {0.8f, 0.8f, .8f, 1.0f};
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
@@ -39,6 +41,33 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     if (width && height)
         glViewport(0, 0, width, height);
+}
+
+Mesh create_sphere(int nlat, int nlon) {
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
+    for (int i = 0; i <= nlat; i++) {
+        for (int j = 0; j <= nlon; j++) {
+            float theta = float(j % nlon) / nlon * glm::two_pi<float>();
+            float phi = float(i) / nlat * glm::pi<float>();
+            float x = glm::cos(theta) * glm::sin(phi);
+            float y = -glm::cos(phi);
+            float z = -glm::sin(theta) * glm::sin(phi);
+            float u = float(j) / nlon;
+            float v = float(i) / nlat;
+            vertices.push_back(Vertex{
+                .position = {x, y, z}, .normal = {x, y, z}, .tex_coords = {u, v}});
+            if (i < nlat && j < nlon) {
+                indices.push_back((i + 0) * (nlon + 1) + (j + 0));
+                indices.push_back((i + 0) * (nlon + 1) + (j + 1));
+                indices.push_back((i + 1) * (nlon + 1) + (j + 1));
+                indices.push_back((i + 1) * (nlon + 1) + (j + 1));
+                indices.push_back((i + 1) * (nlon + 1) + (j + 0));
+                indices.push_back((i + 0) * (nlon + 1) + (j + 0));
+            }
+        }
+    }
+    return Mesh(vertices, indices);
 }
 
 #ifdef _WIN32
@@ -60,35 +89,35 @@ int main(int argc, char* argv[]) {
                                               nullptr, nullptr);
         err::check_glfw(window, "failed to create GLFW window: {}");
         glfwMakeContextCurrent(window);
-        err::check_glfw(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress),
-                        "failed to load GL loader: {}");
         glfwSetKeyCallback(window, key_callback);
         glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+        err::check_glfw(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress),
+                        "failed to load GL loader: {}");
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+
         Shader shader = Shader::load(resource_dir / "shaders/shader.vs",
                                      resource_dir / "shaders/shader.fs");
-        Texture texture(resource_dir / "textures/checkerboard.png");
+        Texture texture(resource_dir / "textures/earth_sphere10k.jpg");
 
-        Vertex vertices[] = {
-            {{-0.5f, -0.5f, 0.f}, {1.f, 0.f, 0.f}, {0.f, 0.f}},
-            {{+0.5f, -0.5f, 0.f}, {1.f, 1.f, 0.f}, {1.f, 0.f}},
-            {{+0.5f, +0.5f, 0.f}, {0.f, 1.f, 0.f}, {1.f, 1.f}},
-            {{-0.5f, +0.5f, 0.f}, {0.f, 0.f, 1.f}, {0.f, 1.f}},
-        };
-        unsigned int indices[] = {0, 1, 2, 2, 3, 0};
+        // Vertex vertices[] = {
+        //     {{-0.5f, -0.5f, 0.f}, {1.f, 0.f, 0.f}, {0.f, 0.f}},
+        //     {{+0.5f, -0.5f, 0.f}, {1.f, 1.f, 0.f}, {1.f, 0.f}},
+        //     {{+0.5f, +0.5f, 0.f}, {0.f, 1.f, 0.f}, {1.f, 1.f}},
+        //     {{-0.5f, +0.5f, 0.f}, {0.f, 0.f, 1.f}, {0.f, 1.f}},
+        // };
+        // unsigned int indices[] = {0, 1, 2, 2, 3, 0};
 
-        Mesh mesh(vertices, indices);
+        Mesh mesh = create_sphere(16, 32);
 
         shader.use();
-        shader.bind_attribute_location("position", Attr::POSITION);
-        shader.bind_attribute_location("color", Attr::NORMAL);
-        shader.bind_attribute_location("tex_coords", Attr::TEX_COORDS);
-
         texture.bind(0);
         shader.set_int("tex", 0);
 
         while (!glfwWindowShouldClose(window)) {
-            glClearColor(0.8f, 0.8f, .8f, 1.0f);
+            glClearColor(BG_COLOR.r, BG_COLOR.g, BG_COLOR.b, BG_COLOR.a);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             auto [_x, _y, width, height] = util::gl_get<float, 4>(GL_VIEWPORT);
@@ -98,7 +127,7 @@ int main(int argc, char* argv[]) {
             shader.set_mat4("projection", projection);
 
             glm::mat4 modelview{1};
-            modelview = glm::translate(modelview, glm::vec3(0, 0, -2));
+            modelview = glm::translate(modelview, glm::vec3(0, 0, -3));
             float angle = float(glfwGetTime()) * glm::pi<float>() / 4.f;
             modelview = glm::rotate(modelview, angle, glm::vec3(0, 1, 0));
             shader.set_mat4("modelview", modelview);
