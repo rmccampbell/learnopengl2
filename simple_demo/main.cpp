@@ -90,11 +90,10 @@ int main(int argc, char* argv[]) {
         GLuint shader = build_shader(VS_SOURCE, FS_SOURCE);
 
         float vertices[][6] = {
-            // clang-format off
+            // Position       | Color
             {-0.6f, -0.5f, 0.f, 1.f, 0.f, 0.f},
-            { 0.6f, -0.5f, 0.f, 0.f, 1.f, 0.f},
-            { 0.0f,  0.5f, 0.f, 0.f, 0.f, 1.f},
-            // clang-format on
+            {+0.6f, -0.5f, 0.f, 0.f, 1.f, 0.f},
+            {+0.0f, +0.5f, 0.f, 0.f, 0.f, 1.f},
         };
         unsigned int indices[] = {0, 1, 2};
 
@@ -109,9 +108,11 @@ int main(int argc, char* argv[]) {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
+        // Position
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]),
                               reinterpret_cast<void*>(0));
+        // Color
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]),
                               reinterpret_cast<void*>(3 * sizeof(float)));
