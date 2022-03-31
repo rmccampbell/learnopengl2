@@ -94,13 +94,14 @@ int main(int argc, char* argv[]) {
 
         err::check_glfw(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress),
                         "failed to load GL loader: {}");
+        glEnable(GL_FRAMEBUFFER_SRGB);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
 
         Shader shader = Shader::load(resource_dir / "shaders/shader.vs",
                                      resource_dir / "shaders/shader.fs");
-        Texture texture(resource_dir / "textures/earth_sphere10k.jpg");
+        Texture texture(resource_dir / "textures/earth_sphere10k.jpg", {.srgb = true});
 
         // Vertex vertices[] = {
         //     {{-0.5f, -0.5f, 0.f}, {1.f, 0.f, 0.f}, {0.f, 0.f}},
