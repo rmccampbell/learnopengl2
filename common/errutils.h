@@ -33,6 +33,12 @@ T&& check_errno(T&& val, fmt::format_string<Args..., char*> fmt, Args&&... args)
 }
 
 template <typename T, typename... Args>
+T&& check_posix(T&& val, fmt::format_string<Args..., char*> fmt, Args&&... args) {
+    check_errno(val >= 0, fmt, std::forward<Args>(args)...);
+    return std::forward<T>(val);
+}
+
+template <typename T, typename... Args>
 T&& check_glfw(T&& val, fmt::format_string<Args..., const char*> fmt, Args&&... args) {
     if (!val) {
         const char* msg;
@@ -40,6 +46,14 @@ T&& check_glfw(T&& val, fmt::format_string<Args..., const char*> fmt, Args&&... 
         error(fmt, std::forward<Args>(args)..., msg ? msg : "(no GLFW error)");
     }
     return std::forward<T>(val);
+}
+
+template <typename... Args>
+void check_glfw_error(fmt::format_string<Args..., const char*> fmt, Args&&... args) {
+    const char* msg;
+    if (glfwGetError(&msg)) {
+        error(fmt, std::forward<Args>(args)..., msg);
+    }
 }
 
 } // namespace err

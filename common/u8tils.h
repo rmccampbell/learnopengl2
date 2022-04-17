@@ -40,13 +40,19 @@ inline const char* to_char(const u8string_type& s) {
     return reinterpret_cast<const char*>(s.c_str());
 }
 
-inline std::filesystem::path to_path(std::string_view s) {
 #ifdef __cpp_char8_t
+inline std::filesystem::path to_path(std::string_view s) {
     return to_u8string(s);
-#else
-    return std::filesystem::u8path(s);
-#endif // __cpp_char8_t
 }
+
+inline std::filesystem::path to_path(std::u8string_view s) {
+    return s;
+}
+#else
+inline std::filesystem::path to_path(std::string_view s) {
+    return std::filesystem::u8path(s);
+}
+#endif // __cpp_char8_t
 
 inline std::string path_to_string(const std::filesystem::path& p) {
     return to_string(p.u8string());
