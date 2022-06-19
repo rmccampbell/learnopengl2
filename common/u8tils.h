@@ -64,11 +64,11 @@ inline std::string path_to_string(const std::filesystem::path& p) {
 // for the full outer expression.
 class _to_char {
   public:
-    _to_char(u8string_type s) : s8(std::move(s)) {}
-    operator const char*() { return to_char(s8); }
+    explicit _to_char(u8string_type s8) : s8_(std::move(s8)) {}
+    operator const char*() const { return to_char(s8_); }
 
   private:
-    u8string_type s8;
+    u8string_type s8_;
 };
 
 inline _to_char path_to_char(const std::filesystem::path& p) {

@@ -42,8 +42,8 @@ class Handle {
     const T& get() const { return handle_; }
     // Implicit conversion to raw handle
     operator const T&() const& { return handle_; }
-    // Rvalue version deleted to prevent auto-conversion from temporaries (which would
-    // result "dangling" handles)
+    // Rvalue version deleted to prevent auto-conversion from temporaries, which would
+    // result in "dangling" handles
     operator const T&() && = delete;
     // Get the deleter
     const D& get_deleter() const { return deleter_; }
