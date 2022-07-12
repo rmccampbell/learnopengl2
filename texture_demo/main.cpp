@@ -47,7 +47,7 @@ int wmain(int argc, wchar_t* argv[]) {
 int main(int argc, char* argv[]) {
 #endif
     try {
-        fs::path exe_path = fs::weakly_canonical(argc ? argv[0] : fs::path());
+        fs::path exe_path = fs::canonical(argc ? argv[0] : fs::path());
         fs::path resource_dir = exe_path.parent_path() / "resources";
 
         err::check_glfw(glfwInit(), "failed to init GLFW: {}");
