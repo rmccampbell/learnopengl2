@@ -10,9 +10,19 @@
 #endif
 
 // Easier deleter definitions:
-// using MyHandle = Handle<int, FUNCTOR_T(delete_function)>
-#define FUNCTOR(f) ([](auto... args) { return f(args...); })
-#define FUNCTOR_T(f) decltype(FUNCTOR(f))
+// using MyHandle = Handle<int, functor<delete_function>>
+// Works for normal functions and global function pointers
+template <auto& F>
+struct functor {
+    auto operator()(auto... args) { return F(args...); }
+};
+
+// For glDeleteBuffers and friends that take a pointer and size
+// using MyHandle = Handle<int, gl_delete_array_functor<glDeleteBuffers>>
+template <auto& F>
+struct gl_delete_array_functor {
+    void operator()(auto x) { F(1, &x); }
+};
 
 // Generic RAII handle type with custom deleter
 // Can be used for shaders, buffers, textures, etc.

@@ -7,11 +7,7 @@
 
 #include "handle.h"
 
-struct texture_deleter {
-    void operator()(GLuint t) { glDeleteTextures(1, &t); }
-};
-
-using TextureHandle = Handle<GLuint, texture_deleter>;
+using TextureHandle = Handle<GLuint, gl_delete_array_functor<glDeleteTextures>>;
 
 struct TextureConfig {
   bool flip = true;

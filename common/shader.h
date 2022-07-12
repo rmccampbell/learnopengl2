@@ -9,16 +9,8 @@
 
 #include "handle.h"
 
-struct shader_deleter {
-    void operator()(GLuint s) { glDeleteShader(s); }
-};
-
-struct program_deleter {
-    void operator()(GLuint p) { glDeleteProgram(p); }
-};
-
-using ShaderHandle = Handle<GLuint, shader_deleter>;
-using ProgramHandle = Handle<GLuint, program_deleter>;
+using ShaderHandle = Handle<GLuint, functor<glDeleteShader>>;
+using ProgramHandle = Handle<GLuint, functor<glDeleteProgram>>;
 
 GLuint build_shader(const char* vs_source, const char* fs_source,
                     const char* gs_source = nullptr);
