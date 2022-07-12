@@ -28,29 +28,29 @@ class Texture {
     explicit Texture(const std::filesystem::path& path, const TextureConfig& config = {})
         : id_(load_texture(path, config)), filename_(path) {}
 
-    GLuint id() const { return id_; }
+    GLuint id() const { return id_.get(); }
     std::filesystem::path filename() const { return filename_; }
 
-    explicit operator bool() const { return id_ != 0; }
-    bool empty() const { return id_ == 0; }
+    explicit operator bool() const { return id() != 0; }
+    bool empty() const { return id() == 0; }
 
-    void bind() const { glBindTexture(GL_TEXTURE_2D, id_); }
+    void bind() const { glBindTexture(GL_TEXTURE_2D, id()); }
     void bind(unsigned int unit) const {
         glActiveTexture(GL_TEXTURE0 + unit);
         bind();
     }
 
     void set_param(GLenum pname, GLint param) {
-        glTextureParameteri(id_, pname, param);
+        glTextureParameteri(id(), pname, param);
     }
     void set_param(GLenum pname, GLfloat param) {
-        glTextureParameterf(id_, pname, param);
+        glTextureParameterf(id(), pname, param);
     }
     void set_param(GLenum pname, GLint* param) {
-        glTextureParameteriv(id_, pname, param);
+        glTextureParameteriv(id(), pname, param);
     }
     void set_param(GLenum pname, GLfloat* param) {
-        glTextureParameterfv(id_, pname, param);
+        glTextureParameterfv(id(), pname, param);
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Texture& texture);

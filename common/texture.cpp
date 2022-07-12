@@ -54,7 +54,7 @@ GLuint load_texture(const std::filesystem::path& path, const TextureConfig& conf
 }
 
 std::ostream& operator<<(std::ostream& os, const Texture& texture) {
-    os << "Texture { " << texture.id_.get();
+    os << "Texture { " << texture.id();
     if (texture)
         os << ": " << texture.filename_;
     return os << " }";

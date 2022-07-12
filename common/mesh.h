@@ -27,9 +27,9 @@ class Mesh {
 public:
     Mesh(std::span<Vertex> vertices, std::span<unsigned int> indices);
     void draw();
-    GLuint vao() { return vao_; };
-    GLuint vbo() { return vbo_; };
-    GLuint ebo() { return ebo_; };
+    GLuint vao() { return vao_.get(); };
+    GLuint vbo() { return vbo_.get(); };
+    GLuint ebo() { return ebo_.get(); };
     GLsizei num_indices() { return num_indices_; };
 private:
     VaoHandle vao_;

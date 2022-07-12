@@ -33,28 +33,28 @@ static void check_link_errors(GLuint program) {
 }
 
 GLuint build_shader(const char* vs_source, const char* fs_source, const char* gs_source) {
-    ShaderHandle vshader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vshader, 1, &vs_source, nullptr);
-    glCompileShader(vshader);
-    check_compile_errors(vshader, "vertex");
-    ShaderHandle fshader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fshader, 1, &fs_source, nullptr);
-    glCompileShader(fshader);
-    check_compile_errors(fshader, "fragment");
-    ShaderHandle gshader = 0;
+    ShaderHandle vshader{glCreateShader(GL_VERTEX_SHADER)};
+    glShaderSource(*vshader, 1, &vs_source, nullptr);
+    glCompileShader(*vshader);
+    check_compile_errors(*vshader, "vertex");
+    ShaderHandle fshader{glCreateShader(GL_FRAGMENT_SHADER)};
+    glShaderSource(*fshader, 1, &fs_source, nullptr);
+    glCompileShader(*fshader);
+    check_compile_errors(*fshader, "fragment");
+    ShaderHandle gshader;
     if (gs_source) {
-        gshader = glCreateShader(GL_GEOMETRY_SHADER);
-        glShaderSource(gshader, 1, &gs_source, nullptr);
-        glCompileShader(gshader);
-        check_compile_errors(gshader, "geometry");
+        gshader.reset(glCreateShader(GL_GEOMETRY_SHADER));
+        glShaderSource(*gshader, 1, &gs_source, nullptr);
+        glCompileShader(*gshader);
+        check_compile_errors(*gshader, "geometry");
     }
-    ProgramHandle prog = glCreateProgram();
-    glAttachShader(prog, vshader);
-    glAttachShader(prog, fshader);
+    ProgramHandle prog{glCreateProgram()};
+    glAttachShader(*prog, *vshader);
+    glAttachShader(*prog, *fshader);
     if (gshader)
-        glAttachShader(prog, gshader);
-    glLinkProgram(prog);
-    check_link_errors(prog);
+        glAttachShader(*prog, *gshader);
+    glLinkProgram(*prog);
+    check_link_errors(*prog);
     return prog.release();
 }
 

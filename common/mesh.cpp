@@ -8,10 +8,10 @@ Mesh::Mesh(std::span<Vertex> vertices, std::span<unsigned int> indices)
     glGenBuffers(1, &vbo_.reset_as_ref());
     glGenBuffers(1, &ebo_.reset_as_ref());
 
-    glBindVertexArray(vao_);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_);
+    glBindVertexArray(*vao_);
+    glBindBuffer(GL_ARRAY_BUFFER, *vbo_);
     glBufferData(GL_ARRAY_BUFFER, vertices.size_bytes(), vertices.data(), GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *ebo_);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size_bytes(), indices.data(),
                  GL_STATIC_DRAW);
 
@@ -29,6 +29,6 @@ Mesh::Mesh(std::span<Vertex> vertices, std::span<unsigned int> indices)
 }
 
 void Mesh::draw() {
-    glBindVertexArray(vao_);
+    glBindVertexArray(*vao_);
     glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);
 }

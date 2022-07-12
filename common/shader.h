@@ -31,12 +31,12 @@ class Shader {
         return Shader(load_shader(vs_path, fs_path, gs_path));
     }
 
-    GLuint id() const { return id_; }
+    GLuint id() const { return id_.get(); }
 
-    void use() const { glUseProgram(id_); }
+    void use() const { glUseProgram(id()); }
 
     GLint uniform_location(const char* name) const {
-        return glGetUniformLocation(id_, name);
+        return glGetUniformLocation(id(), name);
     }
 
     void set_bool(const char* name, bool value) const {

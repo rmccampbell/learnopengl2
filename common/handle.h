@@ -32,7 +32,7 @@ template <typename T, typename D>
 class Handle {
   public:
     // Construct from handle type and optional deleter (only needed for stateful deleters)
-    Handle(T handle = T(), D deleter = D())
+    explicit Handle(T handle = T(), D deleter = D())
         : handle_(std::move(handle)), deleter_(std::move(deleter)) {}
     // Deletes the underlying handle
     ~Handle() { reset(); }
@@ -50,13 +50,12 @@ class Handle {
 
     // Get the raw handle
     const T& get() const { return handle_; }
-    // Implicit conversion to raw handle
-    operator const T&() const& { return handle_; }
-    // Rvalue version deleted to prevent auto-conversion from temporaries, which would
-    // result in "dangling" handles
-    operator const T&() && = delete;
+    const T& operator*() const { return handle_; }
+    const T* operator->() const { return &handle_; }
     // Get the deleter
     const D& get_deleter() const { return deleter_; }
+    explicit operator bool() const { return handle_ != T(); }
+
     // Deletes the stored handle, optionally replacing it with a new handle
     void reset(T new_handle = T()) {
         if (handle_ != T()) {
