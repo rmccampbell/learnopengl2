@@ -26,9 +26,9 @@ GLuint load_texture(const std::filesystem::path& path, const TextureConfig& conf
         config.srgb ? GL_SRGB8_ALPHA8 : GL_RGBA8,
     }[channels - 1];
 
-    GLuint id;
-    glGenTextures(1, &id);
-    glBindTexture(GL_TEXTURE_2D, id);
+    TextureHandle id;
+    glGenTextures(1, &id.reset_as_ref());
+    glBindTexture(GL_TEXTURE_2D, *id);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(GL_TEXTURE_2D, 0, int_format, width, height, 0, format, GL_UNSIGNED_BYTE,
                  data);
@@ -50,7 +50,7 @@ GLuint load_texture(const std::filesystem::path& path, const TextureConfig& conf
         GLint swizzle_mask[] = {GL_RED, GL_RED, GL_RED, GL_GREEN};
         glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzle_mask);
     }
-    return id;
+    return id.release();
 }
 
 std::ostream& operator<<(std::ostream& os, const Texture& texture) {
