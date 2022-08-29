@@ -1,34 +1,32 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <array>
-#include <glad/glad.h>
+#include <optional>
 
 namespace util {
 
-namespace detail {
-void gl_get_impl(GLenum pname, GLint* data) { glGetIntegerv(pname, data); }
+template <typename M, typename K>
+auto get_optional(const M& map, const K& key) {
+    auto it = map.find(key);
+    return it != map.end() ? std::make_optional(it->second) : std::nullopt;
+}
 
-void gl_get_impl(GLenum pname, GLint64* data) { glGetInteger64v(pname, data); }
+template <typename M, typename K>
+auto get_or_default(const M& map, const K& key) {
+    auto it = map.find(key);
+    return it != map.end() ? it->second : typename M::mapped_type{};
+}
 
-void gl_get_impl(GLenum pname, GLfloat* data) { glGetFloatv(pname, data); }
+template <typename M, typename K, typename V>
+auto get_or(const M& map, const K& key, V def) {
+    auto it = map.find(key);
+    return it != map.end() ? it->second : std::move(def);
+}
 
-void gl_get_impl(GLenum pname, GLdouble* data) { glGetDoublev(pname, data); }
-
-void gl_get_impl(GLenum pname, GLboolean* data) { glGetBooleanv(pname, data); }
-} // namespace detail
-
-template <typename T, size_t N = 0>
-auto gl_get(GLenum pname) {
-    if constexpr (N == 0) {
-        T data;
-        detail::gl_get_impl(pname, &data);
-        return data;
-    } else {
-        std::array<T, N> data;
-        detail::gl_get_impl(pname, data.data());
-        return data;
-    }
+template <typename M, typename K>
+auto get_or_null(M& map, const K& key) {
+    auto it = map.find(key);
+    return it != map.end() ? &it->second : nullptr;
 }
 
 } // namespace util

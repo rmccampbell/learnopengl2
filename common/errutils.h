@@ -4,10 +4,15 @@
 #include <cerrno>
 #include <cstring>
 #include <stdexcept>
+#include <unordered_map>
 #include <utility>
+
+#include <glad/glad.h>
 
 #include <GLFW/glfw3.h>
 #include <fmt/format.h>
+
+#include "utils.h"
 
 namespace err {
 
@@ -53,6 +58,23 @@ void check_glfw_error(fmt::format_string<Args..., const char*> fmt, Args&&... ar
     const char* msg;
     if (glfwGetError(&msg)) {
         error(fmt, std::forward<Args>(args)..., msg);
+    }
+}
+
+template <typename... Args>
+void check_gl_error(fmt::format_string<Args..., std::string_view> fmt, Args&&... args) {
+    if (GLenum err = glGetError()) {
+        static const std::unordered_map<GLenum, std::string_view> enum_map{
+            {GL_INVALID_ENUM, "INVALID_ENUM"},
+            {GL_INVALID_VALUE, "INVALID_VALUE"},
+            {GL_INVALID_OPERATION, "INVALID_OPERATION"},
+            {GL_STACK_OVERFLOW, "STACK_OVERFLOW"},
+            {GL_STACK_UNDERFLOW, "STACK_UNDERFLOW"},
+            {GL_OUT_OF_MEMORY, "OUT_OF_MEMORY"},
+            {GL_INVALID_FRAMEBUFFER_OPERATION, "INVALID_FRAMEBUFFER_OPERATION"},
+        };
+        std::string_view errstr = util::get_or_default(enum_map, err);
+        error(fmt, std::forward<Args>(args)..., errstr);
     }
 }
 

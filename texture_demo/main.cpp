@@ -17,9 +17,9 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "common/errutils.h"
+#include "common/glutils.h"
 #include "common/shader.h"
 #include "common/texture.h"
-#include "common/utils.h"
 
 namespace fs = std::filesystem;
 
