@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
         glUseProgram(shader);
 
         while (!glfwWindowShouldClose(window)) {
-            glClearColor(0.8f, 0.8f, .8f, 1.0f);
+            glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             auto [_x, _y, width, height] = util::gl_get<float, 4>(GL_VIEWPORT);

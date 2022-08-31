@@ -10,13 +10,13 @@
 using TextureHandle = Handle<GLuint, gl_delete_array_functor<glDeleteTextures>>;
 
 struct TextureConfig {
-  bool flip = true;
-  bool srgb = false;
-  bool gen_mipmaps = true;
-  GLenum min_filter = GL_LINEAR_MIPMAP_LINEAR;
-  GLenum mag_filter = GL_LINEAR;
-  GLenum wrap = GL_REPEAT;
-  float anisotropy = 8.f;
+    bool flip = true;
+    bool srgb = false;
+    bool gen_mipmaps = true;
+    GLenum min_filter = GL_LINEAR_MIPMAP_LINEAR;
+    GLenum mag_filter = GL_LINEAR;
+    GLenum wrap = GL_REPEAT;
+    float anisotropy = 8.f;
 };
 
 GLuint load_texture(const std::filesystem::path& path, const TextureConfig& config = {});

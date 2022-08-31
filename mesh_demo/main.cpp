@@ -1,11 +1,7 @@
-#include <cstdlib>
 #include <filesystem>
-#include <fstream>
 #include <iostream>
-#include <sstream>
 #include <stdexcept>
 #include <string>
-#include <string_view>
 #include <vector>
 
 #include <glad/glad.h>
@@ -15,7 +11,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #include "common/errutils.h"
 #include "common/glutils.h"
@@ -33,7 +28,7 @@ const float ZNEAR = 0.01f;
 const float ZFAR = 100.f;
 const float FOV = glm::radians(45.f);
 
-const glm::vec4 BG_COLOR = {0.8f, 0.8f, .8f, 1.0f};
+const glm::vec4 BG_COLOR = {0.8f, 0.8f, 0.8f, 1.0f};
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
