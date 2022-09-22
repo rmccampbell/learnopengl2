@@ -12,9 +12,12 @@
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "common/assimp_loader.h"
 #include "common/errutils.h"
 #include "common/glutils.h"
+#include "common/lights.h"
 #include "common/mesh.h"
+#include "common/model.h"
 #include "common/scope_guard.h"
 #include "common/shader.h"
 #include "common/texture.h"
@@ -90,24 +93,22 @@ void run(const fs::path& exe_path) {
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
-    Shader shader = Shader::load(resource_dir / "shaders/shader.vs",
-                                 resource_dir / "shaders/shader.fs");
-    Texture texture(resource_dir / "textures/earth_sphere10k.jpg", {.srgb = true});
+    auto shader = Shader::load(resource_dir / "shaders/shader.vs",
+                               resource_dir / "shaders/shader.fs");
 
-    // Vertex vertices[] = {
-    //     {{-0.5f, -0.5f, 0.f}, {1.f, 0.f, 0.f}, {0.f, 0.f}},
-    //     {{+0.5f, -0.5f, 0.f}, {1.f, 1.f, 0.f}, {1.f, 0.f}},
-    //     {{+0.5f, +0.5f, 0.f}, {0.f, 1.f, 0.f}, {1.f, 1.f}},
-    //     {{-0.5f, +0.5f, 0.f}, {0.f, 0.f, 1.f}, {0.f, 1.f}},
-    // };
-    // unsigned int indices[] = {0, 1, 2, 2, 3, 0};
-    // Mesh mesh {vertices, indices};
+    TextureOpts opts{.srgb = true};
+    auto matl = std::make_shared<Material>();
+    matl->diffuse_texture = Texture(resource_dir / "textures/earth_sphere10k.jpg", opts);
+    auto mesh = std::make_shared<Mesh>(create_sphere(16, 32));
+    mesh->set_material(matl);
+    Model model = Model({mesh}, {matl});
 
-    Mesh mesh = create_sphere(16, 32);
+    // Model model = load_model("C:/Users/Ryan/3D Objects/nanosuit/nanosuit.obj");
 
     shader.use();
-    texture.bind(0);
-    shader.set_int("tex", 0);
+
+    DirLight lights[] = {{.direction = {-1, -1, -1}}};
+    apply_array(shader, "dirLights", "numDirLights", lights);
 
     while (!glfwWindowShouldClose(window)) {
         glClearColor(BG_COLOR.r, BG_COLOR.g, BG_COLOR.b, BG_COLOR.a);
@@ -119,13 +120,14 @@ void run(const fs::path& exe_path) {
         // glm::mat4 projection = glm::ortho(-aspect, aspect, -1.f, 1.f, ZNEAR, ZFAR);
         shader.set_mat4("projection", projection);
 
-        glm::mat4 modelview{1};
-        modelview = glm::translate(modelview, glm::vec3(0, 0, -3));
+        glm::mat4 modelmat{1};
+        modelmat = glm::translate(modelmat, glm::vec3(0, 0, -3));
         float angle = float(glfwGetTime()) * glm::pi<float>() / 4.f;
-        modelview = glm::rotate(modelview, angle, glm::vec3(0, 1, 0));
-        shader.set_mat4("modelview", modelview);
+        modelmat = glm::rotate(modelmat, angle, glm::vec3(0, 1, 0));
+        shader.set_mat4("model", modelmat);
+        shader.set_mat4("view", glm::mat4(1));
 
-        mesh.draw();
+        model.draw(&shader);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

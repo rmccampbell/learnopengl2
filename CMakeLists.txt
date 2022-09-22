@@ -10,12 +10,16 @@ if(MINGW)
     add_link_options(-municode)
 endif()
 
-# find_package(assimp CONFIG REQUIRED)
+find_package(assimp CONFIG)
 find_package(fmt CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_path(STB_IMAGE_INCLUDE_DIR "stb_image.h")
+
+if(assimp_FOUND)
+    add_compile_definitions(HAS_ASSIMP)
+endif()
 
 set(RESOURCES_DIR "${CMAKE_SOURCE_DIR}/resources")
 
@@ -34,3 +38,4 @@ add_subdirectory(common)
 add_subdirectory(simple_demo)
 add_subdirectory(texture_demo)
 add_subdirectory(mesh_demo)
+add_subdirectory(model_demo)

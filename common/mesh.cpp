@@ -1,9 +1,11 @@
 #include "mesh.h"
 
 #include <cstddef>
+#include <utility>
 
-Mesh::Mesh(std::span<Vertex> vertices, std::span<unsigned int> indices)
-    : num_indices_(GLsizei(indices.size())) {
+Mesh::Mesh(std::string_view name, std::span<const Vertex> vertices,
+           std::span<const unsigned int> indices, std::shared_ptr<Material> material)
+    : name_(name), num_indices_(GLsizei(indices.size())), material_(std::move(material)) {
     glGenVertexArrays(1, &vao_.reset_as_ref());
     glGenBuffers(1, &vbo_.reset_as_ref());
     glGenBuffers(1, &ebo_.reset_as_ref());
@@ -28,7 +30,8 @@ Mesh::Mesh(std::span<Vertex> vertices, std::span<unsigned int> indices)
     glBindVertexArray(0);
 }
 
-void Mesh::draw() {
+void Mesh::draw(const Shader* shader) const {
+    if (material_ && shader) material_->apply(*shader);
     glBindVertexArray(*vao_);
     glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);
 }

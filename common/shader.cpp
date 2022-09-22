@@ -2,15 +2,27 @@
 
 #include <filesystem>
 #include <fstream>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <string_view>
 
 #include <glad/glad.h>
 
+#include "cstring_view.h"
 #include "errutils.h"
 
-static void check_compile_errors(GLuint shader, std::string_view type) {
+namespace {
+
+std::string read_file(const std::filesystem::path& filename) {
+    std::ifstream file(filename);
+    err::check_errno(file, "failed to open file: {}: {}", filename.string());
+    std::stringstream sstream;
+    sstream << file.rdbuf();
+    return sstream.str();
+}
+
+void check_compile_errors(GLuint shader, std::string_view type) {
     int success, len;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     if (!success) {
@@ -21,7 +33,7 @@ static void check_compile_errors(GLuint shader, std::string_view type) {
     }
 }
 
-static void check_link_errors(GLuint program) {
+void check_link_errors(GLuint program) {
     int success, len;
     glGetProgramiv(program, GL_LINK_STATUS, &success);
     if (!success) {
@@ -32,19 +44,25 @@ static void check_link_errors(GLuint program) {
     }
 }
 
-GLuint build_shader(const char* vs_source, const char* fs_source, const char* gs_source) {
+} // namespace
+
+GLuint build_shader(cstring_view vs_source, cstring_view fs_source,
+                    std::optional<cstring_view> gs_source) {
     ShaderHandle vshader{glCreateShader(GL_VERTEX_SHADER)};
-    glShaderSource(*vshader, 1, &vs_source, nullptr);
+    const char* vs_source_p = vs_source.c_str();
+    glShaderSource(*vshader, 1, &vs_source_p, nullptr);
     glCompileShader(*vshader);
     check_compile_errors(*vshader, "vertex");
     ShaderHandle fshader{glCreateShader(GL_FRAGMENT_SHADER)};
-    glShaderSource(*fshader, 1, &fs_source, nullptr);
+    const char* fs_source_p = fs_source.c_str();
+    glShaderSource(*fshader, 1, &fs_source_p, nullptr);
     glCompileShader(*fshader);
     check_compile_errors(*fshader, "fragment");
     ShaderHandle gshader;
     if (gs_source) {
         gshader.reset(glCreateShader(GL_GEOMETRY_SHADER));
-        glShaderSource(*gshader, 1, &gs_source, nullptr);
+        const char* gs_source_p = gs_source->c_str();
+        glShaderSource(*gshader, 1, &gs_source_p, nullptr);
         glCompileShader(*gshader);
         check_compile_errors(*gshader, "geometry");
     }
@@ -58,17 +76,10 @@ GLuint build_shader(const char* vs_source, const char* fs_source, const char* gs
     return prog.release();
 }
 
-static std::string read_file(const std::filesystem::path& filename) {
-    std::ifstream file(filename);
-    err::check_errno(file, "failed to open file: {}: {}", filename.string());
-    std::stringstream sstream;
-    sstream << file.rdbuf();
-    return sstream.str();
-}
-
 GLuint load_shader(const std::filesystem::path& vs_path,
                    const std::filesystem::path& fs_path,
                    const std::filesystem::path& gs_path) {
-    return build_shader(read_file(vs_path).c_str(), read_file(fs_path).c_str(),
-                        gs_path.empty() ? nullptr : read_file(gs_path).c_str());
+    return build_shader(read_file(vs_path), read_file(fs_path),
+                        !gs_path.empty() ? read_file(gs_path)
+                                         : std::optional<cstring_view>{});
 }

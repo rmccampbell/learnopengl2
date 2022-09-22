@@ -7,41 +7,40 @@
 #include <stb_image.h>
 
 #include "errutils.h"
-#include "shader.h"
 #include "u8tils.h"
 
-GLuint load_texture(const std::filesystem::path& path, const TextureConfig& config) {
+GLuint load_texture(const std::filesystem::path& path, const TextureOpts& opts) {
     int width, height, channels;
-    stbi_set_flip_vertically_on_load(config.flip);
+    stbi_set_flip_vertically_on_load(opts.flip);
     unsigned char* data =
         stbi_load(u8::path_to_char(path), &width, &height, &channels, 0);
     err::check(data, "failed to load texture {}: {}", path.string(),
                stbi_failure_reason());
 
     GLenum format = std::array{GL_RED, GL_RG, GL_RGB, GL_RGBA}[channels - 1];
-    GLint int_format = std::array{
+    GLint internal_format = std::array{
         GL_R8,
         GL_RG8,
-        config.srgb ? GL_SRGB8 : GL_RGB8,
-        config.srgb ? GL_SRGB8_ALPHA8 : GL_RGBA8,
+        opts.srgb ? GL_SRGB8 : GL_RGB8,
+        opts.srgb ? GL_SRGB8_ALPHA8 : GL_RGBA8
     }[channels - 1];
 
     TextureHandle id;
     glGenTextures(1, &id.reset_as_ref());
     glBindTexture(GL_TEXTURE_2D, *id);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, int_format, width, height, 0, format, GL_UNSIGNED_BYTE,
-                 data);
+    glTexImage2D(GL_TEXTURE_2D, 0, internal_format, width, height, 0, format,
+                 GL_UNSIGNED_BYTE, data);
     stbi_image_free(data);
 
-    if (config.gen_mipmaps) {
+    if (opts.gen_mipmaps) {
         glGenerateMipmap(GL_TEXTURE_2D);
     }
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, config.wrap);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, config.wrap);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, config.min_filter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, config.mag_filter);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, config.anisotropy);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, opts.wrap);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, opts.wrap);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, opts.min_filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, opts.mag_filter);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, opts.anisotropy);
     // set swizzle mask for grayscale
     if (channels == 1) {
         GLint swizzle_mask[] = {GL_RED, GL_RED, GL_RED, GL_ONE};

@@ -9,7 +9,7 @@
 
 using TextureHandle = Handle<GLuint, gl_delete_array_functor<glDeleteTextures>>;
 
-struct TextureConfig {
+struct TextureOpts {
     bool flip = true;
     bool srgb = false;
     bool gen_mipmaps = true;
@@ -19,14 +19,15 @@ struct TextureConfig {
     float anisotropy = 8.f;
 };
 
-GLuint load_texture(const std::filesystem::path& path, const TextureConfig& config = {});
+GLuint load_texture(const std::filesystem::path& path, const TextureOpts& opts = {});
 
 class Texture {
   public:
-    explicit Texture(GLuint id = 0, const std::filesystem::path& filename = {})
+    Texture() : Texture(0, {}) {}
+    explicit Texture(GLuint id, const std::filesystem::path& filename = {})
         : id_(id), filename_(filename) {}
-    explicit Texture(const std::filesystem::path& path, const TextureConfig& config = {})
-        : id_(load_texture(path, config)), filename_(path) {}
+    explicit Texture(const std::filesystem::path& path, const TextureOpts& opts = {})
+        : Texture(load_texture(path, opts), path) {}
 
     GLuint id() const { return id_.get(); }
     std::filesystem::path filename() const { return filename_; }
