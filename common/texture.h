@@ -5,7 +5,7 @@
 
 #include <glad/glad.h>
 
-#include "handle.h"
+#include "raii.h"
 
 using TextureHandle = Handle<GLuint, gl_delete_array_functor<glDeleteTextures>>;
 

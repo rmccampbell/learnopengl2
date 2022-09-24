@@ -8,8 +8,8 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
-#include "handle.h"
 #include "material.h"
+#include "raii.h"
 #include "shader.h"
 
 using VaoHandle = Handle<GLuint, gl_delete_array_functor<glDeleteVertexArrays>>;

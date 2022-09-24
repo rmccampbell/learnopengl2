@@ -1,13 +1,9 @@
-#ifndef HANDLE_H
-#define HANDLE_H
+#ifndef RAII_H
+#define RAII_H
 
 #include <utility>
 
-#ifdef _MSC_VER
-#define NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
-#else
-#define NO_UNIQUE_ADDRESS [[no_unique_address]]
-#endif
+#include "compat.h"
 
 // Easier deleter definitions:
 // using MyHandle = Handle<int, functor<delete_function>>
@@ -78,7 +74,24 @@ class Handle {
 
   private:
     T handle_;
-    NO_UNIQUE_ADDRESS D deleter_;
+    LGL_NO_UNIQUE_ADDRESS D deleter_;
 };
 
-#endif // HANDLE_H
+// RAII scope guard
+template <typename F>
+class ScopeGuard {
+  public:
+    explicit ScopeGuard(F exit_func = F()) : exit_func_(std::move(exit_func)) {}
+    ~ScopeGuard() { exit_func_(); }
+    ScopeGuard(const ScopeGuard&) = delete;
+    ScopeGuard& operator=(const ScopeGuard&) = delete;
+
+  private:
+    LGL_NO_UNIQUE_ADDRESS F exit_func_;
+};
+
+// Scope guard for a plain function, e.g. ScopeGuardFn<glfwTerminate>
+template <auto& F>
+using ScopeGuardFn = ScopeGuard<functor<F>>;
+
+#endif // RAII_H

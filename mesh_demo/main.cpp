@@ -12,10 +12,11 @@
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "common/compat.h"
 #include "common/errutils.h"
 #include "common/glutils.h"
 #include "common/mesh.h"
-#include "common/scope_guard.h"
+#include "common/raii.h"
 #include "common/shader.h"
 #include "common/texture.h"
 
@@ -71,7 +72,7 @@ void run(const fs::path& exe_path) {
     fs::path resource_dir = exe_path.parent_path() / "resources";
 
     err::check_glfw(glfwInit(), "failed to init GLFW: {}");
-    ScopeGuard guard([]() { glfwTerminate(); });
+    ScopeGuardFn<glfwTerminate> guard;
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -132,12 +133,7 @@ void run(const fs::path& exe_path) {
     }
 }
 
-#ifdef _WIN32
-// Support unicode args on Windows
-int wmain(int argc, wchar_t* argv[]) {
-#else
-int main(int argc, char* argv[]) {
-#endif
+int LGL_TMAIN(int argc, LGL_TCHAR* argv[]) {
     try {
         run(fs::canonical(argc ? argv[0] : fs::path()));
     } catch (const std::exception& e) {

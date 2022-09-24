@@ -1,5 +1,5 @@
 add_library(common shader.cpp shader.h texture.cpp texture.h mesh.cpp mesh.h
-    material.cpp material.h lights.h model.cpp model.h handle.h scope_guard.h
+    material.cpp material.h lights.h model.cpp model.h raii.h
     cstring_view.h errutils.h glutils.h utils.h u8tils.h)
 target_include_directories(common PUBLIC "..")
 target_link_libraries(common PUBLIC fmt::fmt glad::glad glfw glm::glm)

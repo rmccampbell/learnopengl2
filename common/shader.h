@@ -10,7 +10,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "cstring_view.h"
-#include "handle.h"
+#include "raii.h"
 
 using ShaderHandle = Handle<GLuint, functor<glDeleteShader>>;
 using ProgramHandle = Handle<GLuint, functor<glDeleteProgram>>;

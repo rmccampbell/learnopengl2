@@ -1,11 +1,6 @@
-#include <cstdlib>
-#include <filesystem>
-#include <fstream>
 #include <iostream>
-#include <sstream>
 #include <stdexcept>
 #include <string>
-#include <string_view>
 
 #include <glad/glad.h>
 
@@ -16,11 +11,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "common/compat.h"
 #include "common/errutils.h"
 #include "common/glutils.h"
 #include "common/shader.h"
-
-namespace fs = std::filesystem;
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
@@ -66,12 +60,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
         glViewport(0, 0, width, height);
 }
 
-#ifdef _WIN32
-// Support unicode args on Windows
-int wmain(int argc, wchar_t* argv[]) {
-#else
-int main(int argc, char* argv[]) {
-#endif
+int LGL_TMAIN(int argc, LGL_TCHAR* argv[]) {
     try {
         err::check_glfw(glfwInit(), "failed to init GLFW: {}");
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
