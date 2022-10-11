@@ -22,8 +22,8 @@ class ModelLoader {
     ModelLoader() {}
 
     Model load(const fs::path& path, unsigned int flags) {
-        materials.clear();
-        meshes.clear();
+        materials_.clear();
+        meshes_.clear();
 
         Assimp::Importer importer;
         flags |= aiProcess_PreTransformVertices;
@@ -32,17 +32,17 @@ class ModelLoader {
                    "assimp error: {}", importer.GetErrorString());
 
         fs::path directory = path.parent_path();
-        materials.reserve(scene->mNumMaterials);
+        materials_.reserve(scene->mNumMaterials);
         for (unsigned int i = 0; i < scene->mNumMaterials; i++) {
-            materials.push_back(convert_material(scene->mMaterials[i], directory));
+            materials_.push_back(convert_material(scene->mMaterials[i], directory));
         }
 
-        meshes.reserve(scene->mNumMeshes);
+        meshes_.reserve(scene->mNumMeshes);
         for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
-            meshes.push_back(convert_mesh(scene->mMeshes[i]));
+            meshes_.push_back(convert_mesh(scene->mMeshes[i]));
         }
 
-        return Model(std::move(meshes), std::move(materials));
+        return Model(std::move(meshes_), std::move(materials_));
     }
 
   private:
@@ -114,12 +114,12 @@ class ModelLoader {
         }
 
         std::string_view name = mesh->mName.C_Str();
-        auto material = materials[mesh->mMaterialIndex];
+        auto material = materials_[mesh->mMaterialIndex];
         return std::make_shared<Mesh>(name, vertices, indices, std::move(material));
     }
 
-    std::vector<std::shared_ptr<Material>> materials;
-    std::vector<std::shared_ptr<Mesh>> meshes;
+    std::vector<std::shared_ptr<Material>> materials_;
+    std::vector<std::shared_ptr<Mesh>> meshes_;
 };
 
 } // namespace

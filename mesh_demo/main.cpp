@@ -69,7 +69,7 @@ Mesh create_sphere(int nlat, int nlon) {
 }
 
 void run(const fs::path& exe_path) {
-    fs::path resource_dir = exe_path.parent_path() / "resources";
+    fs::path root = exe_path.parent_path();
 
     err::check_glfw(glfwInit(), "failed to init GLFW: {}");
     ScopeGuardFn<glfwTerminate> guard;
@@ -91,9 +91,9 @@ void run(const fs::path& exe_path) {
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
-    Shader shader = Shader::load(resource_dir / "shaders/shader.vs",
-                                 resource_dir / "shaders/shader.fs");
-    Texture texture(resource_dir / "textures/earth_sphere10k.jpg", {.srgb = true});
+    Shader shader = Shader::load(root / "mesh_demo/resources/shaders/shader.vs",
+                                 root / "mesh_demo/resources/shaders/shader.fs");
+    Texture texture(root / "resources/textures/earth_sphere10k.jpg", {.srgb = true});
 
     // Vertex vertices[] = {
     //     {{-0.5f, -0.5f, 0.f}, {1.f, 0.f, 0.f}, {0.f, 0.f}},

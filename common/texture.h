@@ -1,6 +1,7 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
+#include <iostream>
 #include <filesystem>
 
 #include <glad/glad.h>

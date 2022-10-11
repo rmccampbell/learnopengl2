@@ -72,7 +72,7 @@ Mesh create_sphere(int nlat, int nlon) {
 }
 
 void run(const fs::path& exe_path) {
-    fs::path resource_dir = exe_path.parent_path() / "resources";
+    fs::path root = exe_path.parent_path();
 
     err::check_glfw(glfwInit(), "failed to init GLFW: {}");
     ScopeGuardFn<glfwTerminate> guard;
@@ -94,17 +94,27 @@ void run(const fs::path& exe_path) {
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
-    auto shader = Shader::load(resource_dir / "shaders/shader.vs",
-                               resource_dir / "shaders/shader.fs");
+    auto shader = Shader::load(root / "resources/shaders/shader.vs",
+                               root / "resources/shaders/shader.fs");
 
-    TextureOpts opts{.srgb = true};
-    auto matl = std::make_shared<Material>();
-    matl->diffuse_texture = Texture(resource_dir / "textures/earth_sphere10k.jpg", opts);
-    auto mesh = std::make_shared<Mesh>(create_sphere(16, 32));
-    mesh->set_material(matl);
-    Model model = Model({mesh}, {matl});
+    // TextureOpts opts{.srgb = true};
+    // auto matl = std::make_shared<Material>();
+    // matl->diffuse_texture = Texture(root / "resources/textures/earth_sphere10k.jpg", opts);
+    // auto mesh = std::make_shared<Mesh>(create_sphere(16, 32));
+    // mesh->set_material(matl);
+    // Model model = Model({mesh}, {matl});
 
-    // Model model = load_model("C:/Users/Ryan/3D Objects/nanosuit/nanosuit.obj");
+    Model model = load_model(root / "resources/models/nanosuit/nanosuit.obj");
+    // Model model = load_model(R"(C:\Users\Ryan\3D Objects\Zelda\master_sword__hylian_shield\scene.gltf)");
+
+    glm::mat4 modelmat{1};
+    // modelmat = glm::scale(modelmat, glm::vec3(1.6f));
+    modelmat = glm::translate(modelmat, {0, -1.5, 0});
+    modelmat = glm::scale(modelmat, glm::vec3(1.f/5.f));
+    // modelmat = glm::translate(modelmat, {0, -.5, -.5});
+    // modelmat = glm::rotate(modelmat, glm::pi<float>(), {0, 0, 1});
+    // modelmat = glm::rotate(modelmat, .5f*glm::pi<float>(), {1, 0, 0});
+    // modelmat = glm::scale(modelmat, glm::vec3(1.f/100.f));
 
     shader.use();
 
@@ -121,11 +131,11 @@ void run(const fs::path& exe_path) {
         // glm::mat4 projection = glm::ortho(-aspect, aspect, -1.f, 1.f, ZNEAR, ZFAR);
         shader.set_mat4("projection", projection);
 
-        glm::mat4 modelmat{1};
-        modelmat = glm::translate(modelmat, glm::vec3(0, 0, -3));
+        glm::mat4 scenemat{1};
+        scenemat = glm::translate(scenemat, {0, 0, -5});
         float angle = float(glfwGetTime()) * glm::pi<float>() / 4.f;
-        modelmat = glm::rotate(modelmat, angle, glm::vec3(0, 1, 0));
-        shader.set_mat4("model", modelmat);
+        scenemat = glm::rotate(scenemat, angle, {0, 1, 0});
+        shader.set_mat4("model", scenemat * modelmat);
         shader.set_mat4("view", glm::mat4(1));
 
         model.draw(&shader);

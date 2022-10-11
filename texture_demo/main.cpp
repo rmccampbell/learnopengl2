@@ -40,7 +40,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 int LGL_TMAIN(int argc, LGL_TCHAR* argv[]) {
     try {
         fs::path exe_path = fs::canonical(argc ? argv[0] : fs::path());
-        fs::path resource_dir = exe_path.parent_path() / "resources";
+        fs::path root = exe_path.parent_path();
 
         err::check_glfw(glfwInit(), "failed to init GLFW: {}");
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -56,9 +56,9 @@ int LGL_TMAIN(int argc, LGL_TCHAR* argv[]) {
         glfwSetKeyCallback(window, key_callback);
         glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-        GLuint shader = load_shader(resource_dir / "shaders/shader.vs",
-                                    resource_dir / "shaders/shader.fs");
-        GLuint texture = load_texture(resource_dir / "textures/checkerboard.png");
+        GLuint shader = load_shader(root / "texture_demo/resources/shaders/shader.vs",
+                                    root / "texture_demo/resources/shaders/shader.fs");
+        GLuint texture = load_texture(root / "resources/textures/checkerboard.png");
 
         float vertices[][8] = {
             // Position       | Color        | Tex coords

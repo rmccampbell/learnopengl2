@@ -23,15 +23,16 @@ endif()
 
 set(RESOURCES_DIR "${CMAKE_SOURCE_DIR}/resources")
 
-function(copy_resources_to_output target)
+function(symlink_to_output target path)
+    get_filename_component(basename "${path}" NAME)
     add_custom_command(
         TARGET ${target} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-                ${ARGN}
-                "$<TARGET_FILE_DIR:${target}>/resources"
+        COMMAND ${CMAKE_COMMAND} -E create_symlink
+                "${path}"
+                "$<TARGET_FILE_DIR:${target}>/${basename}"
         VERBATIM
     )
-endfunction(copy_resources_to_output)
+endfunction()
 
 add_subdirectory(third_party)
 add_subdirectory(common)
