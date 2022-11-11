@@ -10,14 +10,14 @@
 // Works for normal functions and global function pointers
 template <auto& F>
 struct functor {
-    auto operator()(auto... args) { return F(args...); }
+    auto operator()(auto... args) const { return F(args...); }
 };
 
 // For glDeleteBuffers and friends that take a pointer and size
 // using MyHandle = Handle<int, gl_delete_array_functor<glDeleteBuffers>>
 template <auto& F>
 struct gl_delete_array_functor {
-    void operator()(auto x) { F(1, &x); }
+    void operator()(auto x) const { F(1, &x); }
 };
 
 // Generic RAII handle type with custom deleter
