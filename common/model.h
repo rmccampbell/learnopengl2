@@ -6,8 +6,6 @@
 #include <string>
 #include <vector>
 
-// #include <assimp/postprocess.h>
-
 #include "material.h"
 #include "mesh.h"
 #include "shader.h"
@@ -18,6 +16,9 @@ class Model {
           std::vector<std::shared_ptr<Material>> materials = {})
         : meshes_(std::move(meshes)), materials_(std::move(materials)) {}
     void draw(const Shader* shader = nullptr) const;
+
+    const std::vector<std::shared_ptr<Mesh>>& meshes() { return meshes_; }
+    const std::vector<std::shared_ptr<Material>>& materials() { return materials_; }
 
   private:
     std::vector<std::shared_ptr<Mesh>> meshes_;

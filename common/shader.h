@@ -2,15 +2,17 @@
 #define SHADER_H
 
 #include <filesystem>
+#include <format>
 #include <optional>
+#include <unordered_map>
 
-#include <fmt/format.h>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "cstring_view.h"
 #include "raii.h"
+#include "utils.h"
 
 using ShaderHandle = Handle<GLuint, functor<glDeleteShader>>;
 using ProgramHandle = Handle<GLuint, functor<glDeleteProgram>>;
@@ -24,10 +26,10 @@ GLuint load_shader(const std::filesystem::path& vs_path,
 
 class Shader {
   public:
-    explicit Shader(GLuint id) : id_(id) {}
+    explicit Shader(GLuint id) : id_(id) { fetch_uniform_locations(); }
     Shader(cstring_view vs_source, cstring_view fs_source,
            std::optional<cstring_view> gs_source = {})
-        : id_(build_shader(vs_source, fs_source, gs_source)) {}
+        : Shader(build_shader(vs_source, fs_source, gs_source)) {}
 
     static Shader load(const std::filesystem::path& vs_path,
                        const std::filesystem::path& fs_path,
@@ -41,6 +43,7 @@ class Shader {
 
     GLint uniform_location(cstring_view name) const {
         return glGetUniformLocation(id(), name.c_str());
+        // return util::get_or(uniform_locations_, std::string(name), -1);
     }
 
     void set_bool(cstring_view name, bool value) const {
@@ -84,7 +87,10 @@ class Shader {
     }
 
   private:
+    void fetch_uniform_locations();
+
     ProgramHandle id_;
+    std::unordered_map<std::string, GLint> uniform_locations_;
 };
 
 // Apply multiple apply-able objects to a Shader array and count variable
@@ -100,7 +106,7 @@ template <typename Container>
 void apply_array(const Shader& shader, std::string_view array_name,
                  const Container& objs) {
     for (size_t i = 0; i < std::size(objs); i++) {
-        objs[i].apply(shader, fmt::format("{}[{}]", array_name, i));
+        objs[i].apply(shader, std::format("{}[{}]", array_name, i));
     }
 }
 

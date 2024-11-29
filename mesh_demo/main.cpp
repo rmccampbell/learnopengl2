@@ -1,5 +1,6 @@
 #include <filesystem>
 #include <iostream>
+#include <print>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -7,8 +8,8 @@
 #include <glad/glad.h>
 
 #include <GLFW/glfw3.h>
-#include <fmt/format.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/color_space.hpp>
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -16,6 +17,7 @@
 #include "common/errutils.h"
 #include "common/glutils.h"
 #include "common/mesh.h"
+#include "common/primitives.h"
 #include "common/raii.h"
 #include "common/shader.h"
 #include "common/texture.h"
@@ -29,7 +31,7 @@ const float ZNEAR = 0.01f;
 const float ZFAR = 100.f;
 const float FOV = glm::radians(45.f);
 
-const glm::vec4 BG_COLOR = {0.8f, 0.8f, 0.8f, 1.0f};
+const glm::vec4 BG_COLOR = glm::convertSRGBToLinear(glm::vec4{0.8f, 0.8f, 0.8f, 1.0f});
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -41,33 +43,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
         glViewport(0, 0, width, height);
 }
 
-Mesh create_sphere(int nlat, int nlon) {
-    std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
-    for (int i = 0; i <= nlat; i++) {
-        for (int j = 0; j <= nlon; j++) {
-            float theta = float(j % nlon) / nlon * glm::two_pi<float>();
-            float phi = float(i) / nlat * glm::pi<float>();
-            float x = glm::cos(theta) * glm::sin(phi);
-            float y = -glm::cos(phi);
-            float z = -glm::sin(theta) * glm::sin(phi);
-            float u = float(j) / nlon;
-            float v = float(i) / nlat;
-            vertices.push_back(Vertex{
-                .position = {x, y, z}, .normal = {x, y, z}, .tex_coords = {u, v}});
-            if (i < nlat && j < nlon) {
-                indices.push_back((i + 0) * (nlon + 1) + (j + 0));
-                indices.push_back((i + 0) * (nlon + 1) + (j + 1));
-                indices.push_back((i + 1) * (nlon + 1) + (j + 1));
-                indices.push_back((i + 1) * (nlon + 1) + (j + 1));
-                indices.push_back((i + 1) * (nlon + 1) + (j + 0));
-                indices.push_back((i + 0) * (nlon + 1) + (j + 0));
-            }
-        }
-    }
-    return Mesh(vertices, indices);
-}
-
 void run(const fs::path& exe_path) {
     fs::path root = exe_path.parent_path();
 
@@ -77,9 +52,9 @@ void run(const fs::path& exe_path) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window =
-        glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "LearnOpenGL", nullptr, nullptr);
-    err::check_glfw(window, "failed to create GLFW window: {}");
+    GLFWwindow* window = err::check_glfw(
+        glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "LearnOpenGL", nullptr, nullptr),
+        "failed to create GLFW window: {}");
     glfwMakeContextCurrent(window);
     glfwSetKeyCallback(window, key_callback);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -104,7 +79,7 @@ void run(const fs::path& exe_path) {
     // unsigned int indices[] = {0, 1, 2, 2, 3, 0};
     // Mesh mesh {vertices, indices};
 
-    Mesh mesh = create_sphere(16, 32);
+    Mesh mesh = make_sphere(16, 32);
 
     shader.use();
     texture.bind(0);

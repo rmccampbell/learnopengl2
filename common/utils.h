@@ -18,13 +18,13 @@ auto get_or_default(const M& map, const K& key) {
 }
 
 template <typename M, typename K, typename V>
-auto get_or(const M& map, const K& key, V def) {
+auto get_or(const M& map, const K& key, V&& def) {
     auto it = map.find(key);
-    return it != map.end() ? it->second : std::move(def);
+    return it != map.end() ? it->second : std::forward<V>(def);
 }
 
 template <typename M, typename K>
-auto get_or_null(M& map, const K& key) {
+auto* get_or_null(M& map, const K& key) {
     auto it = map.find(key);
     return it != map.end() ? &it->second : nullptr;
 }

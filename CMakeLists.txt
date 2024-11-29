@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.13.0)
+cmake_minimum_required(VERSION 3.20.0)
 project(learnopengl2 VERSION 0.1.0)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -15,7 +15,7 @@ find_package(fmt CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
-find_path(STB_IMAGE_INCLUDE_DIR "stb_image.h")
+find_package(Stb REQUIRED)
 
 if(assimp_FOUND)
     add_compile_definitions(HAS_ASSIMP)
@@ -40,3 +40,4 @@ add_subdirectory(simple_demo)
 add_subdirectory(texture_demo)
 add_subdirectory(mesh_demo)
 add_subdirectory(model_demo)
+add_subdirectory(temp)

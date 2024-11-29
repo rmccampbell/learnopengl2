@@ -1,11 +1,11 @@
 #include <iostream>
+#include <print>
 #include <stdexcept>
 #include <string>
 
 #include <glad/glad.h>
 
 #include <GLFW/glfw3.h>
-#include <fmt/format.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>

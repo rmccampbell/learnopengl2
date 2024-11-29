@@ -1,2 +1,2 @@
 add_library(stb_image stb_image.cpp)
-target_include_directories(stb_image PUBLIC ${STB_IMAGE_INCLUDE_DIR})
+target_include_directories(stb_image PUBLIC ${Stb_INCLUDE_DIR})

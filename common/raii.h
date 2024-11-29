@@ -59,7 +59,8 @@ class Handle {
         }
         handle_ = std::move(new_handle);
     }
-    // Resets and returns a mutable reference to the raw handle, for use as an out param
+    // Resets and returns a mutable reference to the raw handle, for passing to output
+    // params
     T& reset_as_ref() {
         reset();
         return handle_;
@@ -67,9 +68,7 @@ class Handle {
     // Relinquishes ownership of the raw handle and returns it, replacing it with an empty
     // handle
     [[nodiscard]] T release() {
-        T temp = std::move(handle_);
-        handle_ = T();
-        return temp;
+        return std::exchange(handle_, T());
     }
 
   private:

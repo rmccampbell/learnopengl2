@@ -31,7 +31,7 @@ class Texture {
         : Texture(load_texture(path, opts), path) {}
 
     GLuint id() const { return id_.get(); }
-    std::filesystem::path filename() const { return filename_; }
+    const std::filesystem::path& filename() const { return filename_; }
 
     explicit operator bool() const { return id() != 0; }
     bool empty() const { return id() == 0; }

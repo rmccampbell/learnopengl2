@@ -6,6 +6,7 @@
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <utility>
 
 #include <glad/glad.h>
 
@@ -19,7 +20,7 @@ std::string read_file(const std::filesystem::path& filename) {
     err::check_errno(file, "failed to open file: {}: {}", filename.string());
     std::stringstream sstream;
     sstream << file.rdbuf();
-    return sstream.str();
+    return std::move(sstream).str();
 }
 
 void check_compile_errors(GLuint shader, std::string_view type) {
@@ -82,4 +83,19 @@ GLuint load_shader(const std::filesystem::path& vs_path,
     return build_shader(read_file(vs_path), read_file(fs_path),
                         !gs_path.empty() ? read_file(gs_path)
                                          : std::optional<cstring_view>{});
+}
+
+void Shader::fetch_uniform_locations() {
+    GLint count;
+    glGetProgramiv(id(), GL_ACTIVE_UNIFORMS, &count);
+
+    for (int i = 0; i < count; i++) {
+        constexpr GLsizei buffsize = 1024;
+        char name[buffsize];
+        GLint size;
+        GLenum type;
+        glGetActiveUniform(id(), i, buffsize, nullptr, &size, &type, name);
+        GLint location = glGetUniformLocation(id(), name);
+        uniform_locations_[name] = location;
+    }
 }

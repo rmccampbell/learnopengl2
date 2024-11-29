@@ -42,11 +42,11 @@ inline const char* to_char(const u8string_type& s) {
 
 #ifdef __cpp_char8_t
 inline std::filesystem::path to_path(std::string_view s) {
-    return to_u8string(s);
+    return {to_u8string(s)};
 }
 
 inline std::filesystem::path to_path(std::u8string_view s) {
-    return s;
+    return {s};
 }
 #else
 inline std::filesystem::path to_path(std::string_view s) {
