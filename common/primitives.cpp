@@ -3,6 +3,8 @@
 #include <array>
 #include <vector>
 
+#include "utils.h"
+
 template <unsigned int N>
 constexpr std::array<unsigned int, 6 * N> quad_indices() {
     std::array<unsigned int, 6 * N> indices;
@@ -97,15 +99,14 @@ constexpr std::array<Vertex, 4> cube_face(const glm::mat3& orient, glm::vec2 tex
 };
 
 Mesh make_cube() {
-    constexpr std::array<std::array<Vertex, 4>, 6> faces = {
+    constexpr std::array<Vertex, 6*4> vertices = util::array_cat(
         cube_face({{-1, 0, +0}, {0, 1, +0}, {+0, +0, -1}}, {3, 1}), // back
         cube_face({{+1, 0, +0}, {0, 1, +0}, {+0, +0, +1}}, {1, 1}), // front
         cube_face({{+0, 0, +1}, {0, 1, +0}, {-1, +0, +0}}, {0, 1}), // left
         cube_face({{+0, 0, -1}, {0, 1, +0}, {+1, +0, +0}}, {2, 1}), // right
         cube_face({{+1, 0, +0}, {0, 0, +1}, {+0, -1, +0}}, {1, 0}), // bottom
-        cube_face({{+1, 0, +0}, {0, 0, -1}, {+0, +1, +0}}, {1, 2}), // top
-    };
-    std::span<const Vertex> vertices(&faces[0][0], 6*4);
+        cube_face({{+1, 0, +0}, {0, 0, -1}, {+0, +1, +0}}, {1, 2})  // top
+    );
     constexpr auto indices = quad_indices<6>();
     return Mesh(vertices, indices);
 }
